@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyCharm
+.idea/
+
+# Datasets and Models
+SimKGC/data/
+CompoundE/data/
+*.pth
+*.pt
+*.mdl
+*.bin
+*.ckpt
+*.npy
+*.json
+
+# Logs and Checkpoints
+SimKGC/checkpoint/
+CompoundE/checkpoint/
+SimKGC/log/
+CompoundE/log/
+runs/
+logs/
+tmp_log/
+
+# System
+.DS_Store
+Thumbs.db
