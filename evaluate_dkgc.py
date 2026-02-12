@@ -67,6 +67,7 @@ def evaluate(args):
     
     # --- 1. Load Resources ---
     from config import args as simkgc_args
+    simkgc_args.is_test = True # Important for neighbor desc and evaluation logic
     simkgc_args.pretrained_model = args.pretrained_model
     # Mock data paths for dict_hub
     simkgc_args.train_path = os.path.join(args.data_dir, 'train.txt.json')
@@ -76,6 +77,8 @@ def evaluate(args):
     build_tokenizer(simkgc_args)
     tokenizer = get_tokenizer()
     
+    from doc import _concat_name_desc, _parse_entity_name
+
     rel_json = json.load(open(os.path.join(args.data_dir, 'relations.json'), 'r', encoding='utf-8'))
     all_rels = sorted(list(rel_json.keys()))
     rel2idx = {rel: i for i, rel in enumerate(all_rels)}
@@ -130,10 +133,7 @@ def evaluate(args):
     for i in tqdm(range(0, len(all_entities), ent_batch_size), desc="Encoding entities"):
         batch_ents = all_entities[i : i + ent_batch_size]
         # Tokenize
-        batch_text = [ex.entity + ' ' + ex.entity_desc for ex in batch_ents]
-        # SimKGC uses 'tail_bert' for entities. 
-        # We use 'predict_ent_embedding' from CustomBertModel which handles tokenization internally?
-        # No, CustomBertModel expects token_ids.
+        batch_text = [_concat_name_desc(_parse_entity_name(ex.entity), ex.entity_desc) for ex in batch_ents]
         
         features = tokenizer(batch_text, max_length=args.max_length, truncation=True, padding=True, return_tensors='pt')
         features = {k: v.to(device) for k, v in features.items()}

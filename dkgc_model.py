@@ -59,8 +59,10 @@ class DKGCModel(nn.Module):
         alpha = self.gating_mlp(v_combined) # (batch, 1)
 
         # 5. Scores
-        # Textual score: dot product
+        # Textual score: dot product with temperature
         s_text = torch.sum(hr_text * t_text, dim=-1, keepdim=True)
+        if hasattr(self.textual_encoder, 'log_inv_t'):
+            s_text = s_text * self.textual_encoder.log_inv_t.exp()
         
         # Structural score in projected space
         s_struct_prime = self.gamma - torch.norm(h_prime_s_tilde - t_s_tilde, p=1, dim=-1, keepdim=True)
